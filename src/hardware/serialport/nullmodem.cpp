@@ -133,6 +133,7 @@ CNullModem::CNullModem(Bitu id, CommandLine* cmd):CSerial (id, cmd) {
 		LOG_MSG("Serial%d: socket inheritance not available.",(int)COMNUMBER);
 #endif
 	} else {
+        fp = fopen("serial.txt", "w");
 		// normal server/client
 		std::string tmpstring;
 		if (cmd->FindStringBegin("server:",tmpstring,false)) {
@@ -183,6 +184,13 @@ void CNullModem::WriteChar(uint8_t data) {
 		setEvent(SERIAL_TX_REDUCTION, (float)tx_gather);
 		tx_block=true;
 	}
+    if (reading) {
+        reading = false;
+        fputs("\nsending\n", fp);
+        fflush(fp);
+    }
+    fputc(data, fp);
+    fflush(fp);
 }
 
 Bits CNullModem::readChar(uint8_t &val) {
@@ -190,6 +198,13 @@ Bits CNullModem::readChar(uint8_t &val) {
 	if (state != SocketState::Good)
 		return -1;
 	Bits rxchar = val;
+    if (!reading) {
+        reading = true;
+        fputs("\nreceiving\n", fp);
+        fflush(fp);
+    }
+    fputc(val, fp);
+    fflush(fp);
 	if (telnet && rxchar>=0) return TelnetEmulation((uint8_t)rxchar);
 	else if (rxchar==0xff && !transparent) {// escape char
 		// get the next char

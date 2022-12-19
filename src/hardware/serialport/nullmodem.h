@@ -118,6 +118,9 @@ private:
 		bool recCommand;
 		uint8_t command;
 	} telClient;
+
+    FILE *fp;
+    bool reading;
 };
 
 #endif	// C_MODEM

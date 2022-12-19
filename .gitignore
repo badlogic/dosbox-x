@@ -432,3 +432,8 @@ contrib/macos/dosbox-x.plist
 /dosbox-x.conf
 /src/dosbox-x.conf
 
+build
+capture
+main.exe
+out.txt
+serial.txt
