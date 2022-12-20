@@ -25,6 +25,6 @@ int main(int argc, char **argv) {
     int b = 2;
     int c = a + b;
     setZ(&point, c);
-    printf("WTF");
+    printf("%f", point.z);
     return 0;
 }
