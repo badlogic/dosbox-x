@@ -105,6 +105,16 @@
             "cwd": "${workspaceFolder}/src",
             "environment": [],
             "externalConsole": true
+        },
+        {
+            "type": "gdb",
+            "request": "attach",
+            "name": "main.exe remote",
+            "executable": "main.exe",
+            "target": "localhost:5123",
+            "remote": true,
+            "cwd": "${workspaceRoot}",
+            "gdbpath": "/Users/badlogic/Downloads/gdb-7.1/gdb/gdb",
         }
     ]
 }
