@@ -1003,7 +1003,7 @@ void CSerial::Init_Registers () {
 	irq_active=false;
 	waiting_interrupts = 0x0;
 
-	uint32_t initbps = 9600;
+	uint32_t initbps = 115200;
 	uint8_t bytesize = 8;
 	char parity = 'N';
 							  

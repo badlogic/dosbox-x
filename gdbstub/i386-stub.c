@@ -70,6 +70,12 @@
 #include "i386-supp.h"
 #include "i386-stub.h"
 
+#ifdef DEBUG
+#define debug(...) printf (stderr, __VA_ARGS__);
+#else
+#define debug(...)
+#endif
+
 /*
  * BUFMAX defines the maximum number of characters in inbound/outbound buffers
  * at least NUMREGBYTES*2 are needed for register packets
@@ -568,7 +574,7 @@ static char *mem2hex(char *mem, char *buf, int count, int may_fault) {
         mem_fault_routine = set_mem_err;
     for (i = 0; i < count; i++) {
         ch = get_char(mem++);
-        printf("%x ", ch);
+        debug("%x ", ch);
         if (may_fault && mem_err)
             return (buf);
         *buf++ = hexchars[ch >> 4];
@@ -606,7 +612,7 @@ static char *hex2mem(char *buf, char *mem, int count, int may_fault) {
     for (i = 0; i < count; i++) {
         ch = hex(*buf++) << 4;
         ch = ch + hex(*buf++);
-        printf("%x ", ch);
+        debug("%x ", ch);
         set_char(mem++, ch);
         if (may_fault && mem_err)
             return (mem);
@@ -784,9 +790,9 @@ static void handle_exception(int exceptionVector) {
 
     /* reply to host that an exception has occurred */
     sigval = computeSignal(exceptionVector);
-    printf("\nsig: %i, evec: %i, ip %p, [ip] %x\n", sigval, exceptionVector, registers[PC], *(unsigned char *)registers[PC]);
-    for (int l = 0; l < NUMREGS; l++) printf("%s: %x ", register_names[l], registers[l]);
-    printf("\n");
+    debug("\nsig: %i, evec: %i, ip %p, [ip] %x\n", sigval, exceptionVector, registers[PC], *(unsigned char *)registers[PC]);
+    for (int l = 0; l < NUMREGS; l++) debug("%s: %x ", register_names[l], registers[l]);
+    debug("\n");
 
     remcomOutBuffer[0] = 'S';
     remcomOutBuffer[1] = hexchars[sigval >> 4];
@@ -809,18 +815,17 @@ static void handle_exception(int exceptionVector) {
                 remcomOutBuffer[3] = 0;
                 break;
             case 'd' :
-                printf("toggle debug\n");
+                debug("toggle debug\n");
                 remote_debug = !(remote_debug);  /* toggle debug flag */
                 break;
             case 'g' : /* return the value of the CPU registers */
-                printf("get regs\n");
-                for (int l = 0; l < NUMREGS; l++) printf("%s: %x "
-                                                         "", register_names[l], registers[l]);
-                printf("\n");
+                debug("get regs\n");
+                for (int l = 0; l < NUMREGS; l++) debug("%s: %x " "", register_names[l], registers[l]);
+                debug("\n");
                 mem2hex((char *) registers, remcomOutBuffer, NUMREGBYTES, 0);
                 break;
             case 'G' : /* set the value of the CPU registers - return OK */
-                printf("set regs\n");
+                debug("set regs\n");
                 hex2mem(ptr, (char *) registers, NUMREGBYTES, 0);
                 strcpy(remcomOutBuffer, "OK");
                 break;
@@ -830,9 +835,9 @@ static void handle_exception(int exceptionVector) {
 
                 if (hexToInt(&ptr, &regno) && *ptr++ == '=')
                     if (regno >= 0 && regno < NUMREGS) {
-                        printf("set reg: %i, ", regno);
+                        debug("set reg: %i, ", regno);
                         hex2mem(ptr, (char *) &registers[regno], 4, 0);
-                        printf("\n");
+                        debug("\n");
                         strcpy(remcomOutBuffer, "OK");
                         break;
                     }
@@ -844,9 +849,9 @@ static void handle_exception(int exceptionVector) {
                 /* mAA..AA,LLLL  Read LLLL bytes at address AA..AA */
             case 'm' :
                 /* TRY TO READ %x,%x.  IF SUCCEED, SET PTR = 0 */
-                if (hexToInt(&ptr, &addr))
-                    printf("read, addr: %p, ", addr);
-                    if (*(ptr++) == ',')
+                if (hexToInt(&ptr, &addr)) {
+                    debug("read, addr: %p, ", addr);
+                    if (*(ptr++) == ',') {
                         if (hexToInt(&ptr, &length)) {
                             ptr = 0;
                             mem_err = 0;
@@ -856,7 +861,9 @@ static void handle_exception(int exceptionVector) {
                                 debug_error("%s", "memory fault");
                             }
                         }
-                    printf("\n");
+                    }
+                }
+                debug("\n");
                 if (ptr) {
                     strcpy(remcomOutBuffer, "E01");
                 }
@@ -865,9 +872,9 @@ static void handle_exception(int exceptionVector) {
                 /* MAA..AA,LLLL: Write LLLL bytes at address AA.AA return OK */
             case 'M' :
                 /* TRY TO READ '%x,%x:'.  IF SUCCEED, SET PTR = 0 */
-                if (hexToInt(&ptr, &addr))
-                    printf("write, addr: %p, ", addr);
-                    if (*(ptr++) == ',')
+                if (hexToInt(&ptr, &addr)) {
+                    debug("write, addr: %p, ", addr);
+                    if (*(ptr++) == ',') {
                         if (hexToInt(&ptr, &length))
                             if (*(ptr++) == ':') {
                                 mem_err = 0;
@@ -882,7 +889,9 @@ static void handle_exception(int exceptionVector) {
 
                                 ptr = 0;
                             }
-                    printf("\n");
+                    }
+                    debug("\n");
+                }
                 if (ptr) {
                     strcpy(remcomOutBuffer, "E02");
                 }
@@ -896,10 +905,9 @@ static void handle_exception(int exceptionVector) {
                 /* try to read optional parameter, pc unchanged if no parm */
                 if (hexToInt(&ptr, &addr)) {
                     registers[PC] = addr;
-                    printf("Got address offset %i\n", addr);
                 }
 
-                printf("step (%c), ip: %p\n", cmd, registers[PC]);
+                debug("\n");("step (%c), ip: %p\n", cmd, registers[PC]);
                 newPC = registers[PC];
 
                 /* clear the trace bit */
