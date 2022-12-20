@@ -70,8 +70,9 @@
 #include "i386-supp.h"
 #include "i386-stub.h"
 
+#define DEBUG
 #ifdef DEBUG
-#define debug(...) printf (stderr, __VA_ARGS__);
+#define debug(...) printf(__VA_ARGS__)
 #else
 #define debug(...)
 #endif
@@ -814,6 +815,34 @@ static void handle_exception(int exceptionVector) {
                 remcomOutBuffer[2] = hexchars[sigval % 16];
                 remcomOutBuffer[3] = 0;
                 break;
+            case 'H':
+                strcpy(remcomOutBuffer, "OK");
+                break;
+            case 'q':
+                if (!strcmp(ptr, "C")) {
+                    remcomOutBuffer[0] = 'Q';
+                    remcomOutBuffer[1] = 'C';
+                    remcomOutBuffer[2] = '0';
+                    remcomOutBuffer[3] = 0;
+                    break;
+                } else if (!strcmp(ptr, "Attached")) {
+                    debug("Attached request\n");
+                    remcomOutBuffer[0] = '1';
+                    remcomOutBuffer[1] = 0;
+                } else if (!strcmp(ptr, "fThreadInfo")) {
+                    remcomOutBuffer[0] = 'm';
+                    remcomOutBuffer[1] = '0';
+                    remcomOutBuffer[2] = 0;
+                } else if (!strcmp(ptr, "sThreadInfo")) {
+                    remcomOutBuffer[0] = 'l';
+                    remcomOutBuffer[1] = 0;
+                } else if (!strcmp(ptr, "Symbol::")) {
+                    strcpy(remcomOutBuffer, "OK");
+                    break;
+                } else {
+                    debug("Unhandled: %c%s\n", cmd, ptr);
+                }
+                break;
             case 'd' :
                 debug("toggle debug\n");
                 remote_debug = !(remote_debug);  /* toggle debug flag */
@@ -927,6 +956,8 @@ static void handle_exception(int exceptionVector) {
                     BREAKPOINT();
 #endif
                 break;
+            default:
+                debug("Unhandled: %c%s\n", cmd, ptr);
         } /* switch */
 
         /* reply to the request */

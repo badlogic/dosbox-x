@@ -437,3 +437,6 @@ capture
 main.exe
 out.txt
 serial.txt
+*.o
+*.Po
+.idea/
