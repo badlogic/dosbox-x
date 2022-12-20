@@ -43,14 +43,14 @@ CNullModem::CNullModem(Bitu id, CommandLine* cmd):CSerial (id, cmd) {
 	rx_state=N_RX_DISC;
 
 	tx_gather = 12;
-	
+
 	dtrrespect=false;
 	tx_block=false;
 	receiveblock=false;
 	transparent=false;
     nonlocal=false;
 	telnet=false;
-	
+
 	Bitu bool_temp=0;
 
     // enet: Setting to 1 enables enet on the port, otherwise TCP.
@@ -133,7 +133,10 @@ CNullModem::CNullModem(Bitu id, CommandLine* cmd):CSerial (id, cmd) {
 		LOG_MSG("Serial%d: socket inheritance not available.",(int)COMNUMBER);
 #endif
 	} else {
-        fp = fopen("serial.txt", "w");
+        if (cmd->FindExist("dbgtr", false))
+			fp = fopen("serial.txt", "w");
+		else
+			fp = nullptr;
 		// normal server/client
 		std::string tmpstring;
 		if (cmd->FindStringBegin("server:",tmpstring,false)) {
@@ -184,13 +187,15 @@ void CNullModem::WriteChar(uint8_t data) {
 		setEvent(SERIAL_TX_REDUCTION, (float)tx_gather);
 		tx_block=true;
 	}
-    if (reading) {
-        reading = false;
-        fputs("\nsending\n", fp);
-        fflush(fp);
-    }
-    fputc(data, fp);
-    fflush(fp);
+	if (fp) {
+		if (reading) {
+			reading = false;
+			fputs("\nsending\n", fp);
+			fflush(fp);
+		}
+		fputc(data, fp);
+		fflush(fp);
+	}
 }
 
 Bits CNullModem::readChar(uint8_t &val) {
@@ -198,13 +203,17 @@ Bits CNullModem::readChar(uint8_t &val) {
 	if (state != SocketState::Good)
 		return -1;
 	Bits rxchar = val;
-    if (!reading) {
-        reading = true;
-        fputs("\nreceiving\n", fp);
-        fflush(fp);
-    }
-    fputc(val, fp);
-    fflush(fp);
+
+	if (fp) {
+		if (!reading) {
+			reading = true;
+			fputs("\nreceiving\n", fp);
+			fflush(fp);
+		}
+		fputc(val, fp);
+		fflush(fp);
+	}
+
 	if (telnet && rxchar>=0) return TelnetEmulation((uint8_t)rxchar);
 	else if (rxchar==0xff && !transparent) {// escape char
 		// get the next char
@@ -223,7 +232,7 @@ Bits CNullModem::readChar(uint8_t &val) {
 bool CNullModem::ClientConnect(NETClientSocket *newsocket) {
 	char peernamebuf[INET_ADDRSTRLEN];
 	clientsocket = newsocket;
- 
+
 	if (!clientsocket->isopen) {
 		LOG_MSG("Serial%d: Connection failed.",(int)COMNUMBER);
 		delete clientsocket;
@@ -257,7 +266,7 @@ bool CNullModem::ServerConnect() {
 	// check if a connection is available.
 	clientsocket=serversocket->Accept();
 	if (!clientsocket) return false;
-	
+
 	char peeripbuf[INET_ADDRSTRLEN];
 	clientsocket->GetRemoteAddressString(peeripbuf);
 	LOG_MSG("Serial%d: A client (%s) has connected.",(int)COMNUMBER,peeripbuf);
@@ -277,7 +286,7 @@ bool CNullModem::ServerConnect() {
 	clientsocket->SetSendBufferSize(256);
 	rx_state=N_RX_IDLE;
 	setEvent(SERIAL_POLLING_EVENT, 1);
-	
+
 	// we don't accept further connections
 	delete serversocket;
 	serversocket=0;
@@ -298,10 +307,10 @@ void CNullModem::Disconnect() {
 	setDSR(false);
 	setCTS(false);
 	setCD(false);
-	
+
 	if (serverport) {
 		serversocket = NETServerSocket::NETServerFactory(socketType,serverport);
-		if (serversocket->isopen) 
+		if (serversocket->isopen)
 			setEvent(SERIAL_SERVER_POLLING_EVENT, 50);
 		else delete serversocket;
 	} else if (dtrrespect) {
@@ -311,7 +320,7 @@ void CNullModem::Disconnect() {
 }
 
 void CNullModem::handleUpperEvent(uint16_t type) {
-	
+
 	switch(type) {
 		case SERIAL_POLLING_EVENT: {
 			// periodically check if new data arrived, disconnect
@@ -432,7 +441,7 @@ void CNullModem::handleUpperEvent(uint16_t type) {
 			ByteTransmitting();
 			// actually send it
 			setEvent(SERIAL_TX_EVENT,bytetime+0.01f);
-			break;				   
+			break;
 		}
 		case SERIAL_SERVER_POLLING_EVENT: {
 			// As long as nothing is connected to our server poll the
@@ -447,7 +456,7 @@ void CNullModem::handleUpperEvent(uint16_t type) {
 			// Flush the data in the transmitting buffer.
 			if (clientsocket) clientsocket->FlushBuffer();
 			tx_block=false;
-			break;						  
+			break;
 		}
 		case SERIAL_NULLMODEM_DTR_EVENT: {
 			if ((!DTR_delta) && getDTR()) {
@@ -467,11 +476,11 @@ void CNullModem::handleUpperEvent(uint16_t type) {
 /* parameters baudrate, stopbits, number of databits, parity.               **/
 /*****************************************************************************/
 void CNullModem::updatePortConfig (uint16_t /*divider*/, uint8_t /*lcr*/) {
-	
+
 }
 
 void CNullModem::updateMSR () {
-	
+
 }
 
 bool CNullModem::doReceive () {
@@ -486,7 +495,7 @@ bool CNullModem::doReceive () {
 		}
 		return false;
 }
- 
+
 void CNullModem::transmitByte (uint8_t val, bool first) {
  	// transmit it later in THR_Event
 	if (first) setEvent(SERIAL_THR_EVENT, bytetime/8);
@@ -494,7 +503,7 @@ void CNullModem::transmitByte (uint8_t val, bool first) {
 
 	// disable 0xff escaping when transparent mode is enabled
 	if (!transparent && (val==0xff)) WriteChar(0xff);
-	
+
 	WriteChar(val);
 }
 
@@ -584,7 +593,7 @@ Bits CNullModem::TelnetEmulation(uint8_t data) {
 			}
 			telClient.command = data;
 			telClient.recCommand = true;
-			
+
 			if ((telClient.binary[TEL_SERVER]) && (data == 0xff)) {
 				/* Binary data with value of 255 */
 				telClient.inIAC = false;
@@ -601,7 +610,7 @@ Bits CNullModem::TelnetEmulation(uint8_t data) {
 	}
 	return -1; // ???
 }
-	
+
 
 /*****************************************************************************/
 /* setBreak(val) switches break on or off                                   **/

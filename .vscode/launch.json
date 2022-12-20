@@ -114,7 +114,7 @@
             "target": "localhost:5123",
             "remote": true,
             "cwd": "${workspaceRoot}",
-            "gdbpath": "/Users/badlogic/Downloads/gdb-7.1/gdb/gdb",
+            "gdbpath": "/Users/badlogic/workspaces/gdb-7.1a/gdb/gdb",
         }
     ]
 }

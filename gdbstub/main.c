@@ -1,6 +1,4 @@
 #include "i386-stub.h"
-#include "crc.h"
-#include <bios.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -10,12 +8,23 @@ void setupGDB() {
   breakpoint();
 }
 
+typedef struct p {
+  float x, y, z;
+} p;
+
+void setZ(p *point, int z) {
+  p *pnt = point;
+  pnt->z = z;
+}
+
 int main(int argc, char **argv) {
     setupGDB();
 
-    int a = 0;
+    p point = {1, 2, 3};
+    int a = 123;
     int b = 2;
     int c = a + b;
-    printf("WTF\n");
+    setZ(&point, c);
+    printf("WTF");
     return 0;
 }
