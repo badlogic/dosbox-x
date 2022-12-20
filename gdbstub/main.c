@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 void setupGDB() {
-  gdb_serial_init(1, 9600);
+  gdb_serial_init(1);
   gdb_target_init();
   breakpoint();
 }

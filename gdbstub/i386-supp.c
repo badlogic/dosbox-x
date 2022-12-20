@@ -35,7 +35,6 @@
  *  Static Data
  */
 static unsigned int gdbComPort      = 1;
-static unsigned int gdbComPortSpeed = 9600;
 
 /***********************************************************************
  *  gdb_serial_init
@@ -49,10 +48,9 @@ static unsigned int gdbComPortSpeed = 9600;
  *  Returns:  None.
  *
  ***********************************************************************/
-void gdb_serial_init(unsigned int port, unsigned int speed)
+void gdb_serial_init(unsigned int port)
 {
-  gdbComPort      = port;
-  gdbComPortSpeed = speed;
+  gdbComPort = port;
 }
 
 /***********************************************************************

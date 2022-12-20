@@ -23,7 +23,7 @@
 #ifndef _I386_STUB_H_
 #define _I386_STUB_H_
 
-extern void gdb_serial_init(unsigned int port, unsigned int speed);
+extern void gdb_serial_init(unsigned int port);
 extern void gdb_target_init(void);
 extern void gdb_target_close(void);
 
