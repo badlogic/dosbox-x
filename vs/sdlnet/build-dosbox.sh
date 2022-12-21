@@ -53,5 +53,5 @@ fi
 
 # Delete libSDLmain.a and libSDL.a from archive file
 # otherwise linking will fail on macOS
-ar dv linux-host/lib/libSDL_net.a libSDLmain.a
-ar dv linux-host/lib/libSDL_net.a libSDL.a
+ar dv linux-host/lib/libSDL_net.a libSDLmain.a || true
+ar dv linux-host/lib/libSDL_net.a libSDL.a || true
