@@ -5,7 +5,7 @@
 # Usage: ./configure CC="sh gcc-fat.sh" && make && rm -rf x86 x64
 
 # Intel 32-bit compiler flags (10.4 runtime compatibility)
-GCC_COMPILE_X86="gcc-4.0 -arch i386 -mmacosx-version-min=10.4 \
+GCC_COMPILE_X86="gcc-4.0 -arch i386 -mmacosx-version-min=10.6 \
 -DMAC_OS_X_VERSION_MIN_REQUIRED=1040 \
 -nostdinc \
 -F/Developer/SDKs/MacOSX10.4u.sdk/System/Library/Frameworks \
@@ -17,7 +17,7 @@ GCC_LINK_X86="\
 -Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk"
 
 # Intel 64-bit compiler flags (10.5 runtime compatibility)
-GCC_COMPILE_X64="gcc-4.0 -arch x86_64 -mmacosx-version-min=10.5 \
+GCC_COMPILE_X64="gcc-4.0 -arch x86_64 -mmacosx-version-min=10.6 \
 -DMAC_OS_X_VERSION_MIN_REQUIRED=1050 \
 -nostdinc \
 -F/Developer/SDKs/MacOSX10.5.sdk/System/Library/Frameworks \
