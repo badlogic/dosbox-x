@@ -33,28 +33,12 @@ jobs:
           strip $top/src/dosbox-x
           make dosbox-x.app
           mv dosbox-x.app $top/package/dosbox-x
-      #- name: Build macOS SDL2
-      #  run: |
-      #    top=`pwd`
-      #    ./build-macos-sdl2
-      #    strip $top/src/dosbox-x
-      #    make dosbox-x.app
-      #    mv dosbox-x.app $top/package/dosbox-x-sdl2
-      #- name: Unit testing
-      #  run: |
-      #    top=`pwd`
-      #    chmod +x $top/package/dosbox-x/dosbox-x.app/Contents/MacOS/dosbox-x $top/package/dosbox-x-sdl2/dosbox-x.app/Contents/MacOS/dosbox-x
-      #    $top/package/dosbox-x/dosbox-x.app/Contents/MacOS/dosbox-x -tests
-      #    $top/package/dosbox-x-sdl2/dosbox-x.app/Contents/MacOS/dosbox-x -tests
       - name: Package build
         run: |
           top=`pwd`
           cp $top/CHANGELOG $top/package/dosbox-x/CHANGELOG.txt
           cp $top/COPYING $top/package/dosbox-x/COPYING.txt
           cp $top/contrib/macos/readme.txt $top/package/dosbox-x/README.txt
-       #   cp $top/CHANGELOG $top/package/dosbox-x-sdl2/CHANGELOG.txt
-       #   cp $top/COPYING $top/package/dosbox-x-sdl2/COPYING.txt
-       #   cp $top/contrib/macos/readme.txt $top/package/dosbox-x-sdl2/README.txt
           cd $top/package/
           zip -r -9 $top/dosbox-x-macosx-x86_64-${{ env.timestamp }}.zip *
           cd $top
