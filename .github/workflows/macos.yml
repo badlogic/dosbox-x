@@ -25,7 +25,6 @@ jobs:
           brew install autoconf automake nasm glfw glew
           mkdir -p package/dosbox-x
           mkdir -p package/dosbox-x-sdl2
-          # cd vs/sdlnet && ./build-dosbox.sh
       - name: Build macOS SDL1
         run: |
           top=`pwd`
