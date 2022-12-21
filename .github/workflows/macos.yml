@@ -22,7 +22,7 @@ jobs:
       - name: Install libraries
         run: |
           echo "timestamp=`date +%F-%T | sed -e 's/:/-/g' | sed -e 's/-//g'`" >> $GITHUB_ENV
-          brew install autoconf automake nasm glfw glew sdl_net sdl2
+          brew install autoconf automake nasm glfw glew
           mkdir -p package/dosbox-x
           mkdir -p package/dosbox-x-sdl2
           # cd vs/sdlnet && ./build-dosbox.sh
