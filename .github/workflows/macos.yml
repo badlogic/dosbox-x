@@ -28,6 +28,7 @@ jobs:
       - name: Build macOS SDL1
         run: |
           top=`pwd`
+          export PATH=/usr/bin:$PATH
           ./build-macos
           strip $top/src/dosbox-x
           make dosbox-x.app
