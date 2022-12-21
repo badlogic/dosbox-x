@@ -22,8 +22,7 @@ jobs:
       - name: Install libraries
         run: |
           echo "timestamp=`date +%F-%T | sed -e 's/:/-/g' | sed -e 's/-//g'`" >> $GITHUB_ENV
-          brew install autoconf automake nasm glfw glew
-          brew uninstall sdl_net
+          brew install autoconf automake nasm
           mkdir -p package/dosbox-x
           mkdir -p package/dosbox-x-sdl2
       - name: Build macOS SDL1
