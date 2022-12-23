@@ -36,6 +36,8 @@
 extern "C" {
 #endif
 
+#define TCP_NODELAY 1
+
 /* Printable format: "%d.%d.%d", MAJOR, MINOR, PATCHLEVEL
 */
 #define SDL_NET_MAJOR_VERSION	1
@@ -116,7 +118,7 @@ typedef struct _TCPsocket *TCPsocket;
    If ip.host is INADDR_NONE or INADDR_ANY, this creates a local server
    socket on the given port, otherwise a TCP connection to the remote
    host and port is attempted. The address passed in should already be
-   swapped to network byte order (addresses returned from 
+   swapped to network byte order (addresses returned from
    SDLNet_ResolveHost() are already in the correct form).
    The newly created socket is returned, or NULL if there was an error.
 */
@@ -213,7 +215,7 @@ extern DECLSPEC int SDLCALL SDLNet_UDP_Bind(UDPsocket sock, int channel, const I
 /* Unbind all addresses from the given channel */
 extern DECLSPEC void SDLCALL SDLNet_UDP_Unbind(UDPsocket sock, int channel);
 
-/* Get the primary IP address of the remote system associated with the 
+/* Get the primary IP address of the remote system associated with the
    socket and channel.  If the channel is -1, then the primary IP port
    of the UDP socket is returned -- this is only meaningful for sockets
    opened with a specific port.
@@ -224,7 +226,7 @@ extern DECLSPEC IPaddress * SDLCALL SDLNet_UDP_GetPeerAddress(UDPsocket sock, in
 /* Send a vector of packets to the the channels specified within the packet.
    If the channel specified in the packet is -1, the packet will be sent to
    the address in the 'src' member of the packet.
-   Each packet will be updated with the status of the packet after it has 
+   Each packet will be updated with the status of the packet after it has
    been sent, -1 if the packet send failed.
    This function returns the number of packets sent.
 */
@@ -307,7 +309,7 @@ extern DECLSPEC int SDLCALL SDLNet_DelSocket(SDLNet_SocketSet set, SDLNet_Generi
    given set of sockets.  If 'timeout' is 0, it performs a quick poll,
    otherwise the function returns when either data is available for
    reading, or the timeout in milliseconds has elapsed, which ever occurs
-   first.  This function returns the number of sockets ready for reading, 
+   first.  This function returns the number of sockets ready for reading,
    or -1 if there was an error with the select() system call.
 */
 extern DECLSPEC int SDLCALL SDLNet_CheckSockets(SDLNet_SocketSet set, Uint32 timeout);
