@@ -187,6 +187,7 @@
                 "${workspaceFolder}/vs/zlib"
             ],
             "defines": [
+                "C_MODEM=1",
                 "_DEBUG",
                 "_MBCS",
                 "_CRT_SECURE_NO_WARNINGS",
